@@ -29,7 +29,7 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export type State = {
   errors?: {
-    customerId?: string;
+    customerId?: string[];
     amount?: string[];
     status?: string[];
   };
@@ -69,6 +69,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
   `;
   } catch (error) {
     // If a database error occurs, return a more specific error error.
+    console.error("Database error:", error);
     return {
       message: "Database error: Failed to Create Invoice.",
     };
@@ -114,6 +115,7 @@ export async function updateInvoice(
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error error.
+    console.error("Database error:", error);
     return {
       message: "Database Error: Failed to Update Invoice.",
     };
