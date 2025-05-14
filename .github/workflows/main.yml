@@ -1,0 +1,24 @@
+name: Repopulate Neon Database
+on:
+  schedule:
+    - cron: "0 2 * * *" # Runs at 2 AM UTC daily
+jobs:
+  repopulate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up PostgreSQL client
+        run: sudo apt-get install -y postgresql-client
+      - name: Debug secrets
+        run: |
+          echo "PG_HOST is set: ${{ secrets.PG_HOST != '' }}"
+          echo "PG_USER is set: ${{ secrets.PG_USER != '' }}"
+          echo "PG_DATABASE is set: ${{ secrets.PG_DATABASE != '' }}"
+          echo "PGPASSWORD is set: ${PGPASSWORD:+'set'}"
+      - name: Reset and populate database
+        env:
+          PGPASSWORD: ${{ secrets.PG_PASSWORD }}
+        run: |
+          psql -h ${{ secrets.PG_HOST }} -U ${{ secrets.PG_USER }} -d ${{ secrets.PG_DATABASE }} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+          psql -h ${{ secrets.PG_HOST }} -U ${{ secrets.PG_USER }} -d ${{ secrets.PG_DATABASE }} -f sql/nextjs-dashboard.sql
